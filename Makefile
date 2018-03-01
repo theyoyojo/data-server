@@ -5,7 +5,7 @@ CLIENT_EXEC = dataserver-client
 LIBS = -lm
 CCLOG = gcc.log
 
-SHARED_OBJECTS = logger.o qsock.o interrupt.c
+SHARED_OBJECTS = logger.o qsock.o interrupt.o
 SERVER_OBJECTS = servermain.o 
 CLIENT_OBJECTS = clientmain.o
 OBJECTS = $(SHARED_OBJECTS) $(SERVER_OBJECTS) $(CLIENT_OBJECTS) 
