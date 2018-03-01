@@ -18,8 +18,8 @@ FILE * fpLog ;
 
 char * s_critical ;
 char * s_error ;
-char * s_debug ;
 char * s_info ;
+char * s_debug ;
 char * s_verbose ;
 
 
@@ -29,8 +29,8 @@ void log_open ( struct log_opt * log_optSession_saved )
 
   s_critical = "CRITICAL" ;
   s_error = "ERROR" ;
-  s_debug = "DEBUG" ;
   s_info = "INFO" ;
+  s_debug = "DEBUG" ;
   s_verbose = "VERBOSE" ;
 
   if ( log_optSession_saved )
@@ -128,11 +128,11 @@ void strBuff_copy_priority ( int * p_sizeBuff , Priority priority )
     case ERROR :
       needlePriority = s_error ;
       break ;
-    case DEBUG :
-      needlePriority = s_debug ;
-      break ;
     case INFO :
       needlePriority = s_info ;
+      break ;
+    case DEBUG :
+      needlePriority = s_debug ;
       break ;
     case VERBOSE :
       needlePriority = s_verbose ;
@@ -217,6 +217,29 @@ void log_msg ( const char * msg , Priority priority )
     strBuff_publish ( & sizeBuff , priority ) ;
   }
 }
+
+void log_msgf ( const char * fmt , Priority priority , ... )
+{
+  va_list argsMsg ;
+  int sizeFmt ;
+  char * buffMsg ;
+
+  sizeFmt = 0 ;
+  while ( fmt [ sizeFmt ++ ] != '\0' ) ;
+  
+  // TODO what is the best way do determin number of bytes to allocate?
+  // What appears in the following line ( sizeFmt * 2 ) is a temporary fix,
+  // though it may prove to be permanently sufficent 
+  buffMsg = ( char * ) malloc ( sizeof ( char ) * ( sizeFmt * 2 ) ) ;
+
+  va_start ( argsMsg , fmt ) ;
+  vsprintf ( buffMsg , fmt , argsMsg ) ;
+  va_end ( argsMsg ) ;
+
+  log_msg ( ( const char * ) buffMsg , priority ) ;
+  free ( buffMsg ) ;
+}
+  
 
 void log_close ( void ) 
 {
