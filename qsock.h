@@ -22,9 +22,8 @@ void qsock_listen ( QSOCK hQsock ) ;
 
 Status qsock_get_state ( QSOCK hQsock ) ;
 
-// TODO make these not integers, this is for temporary debug purposes
-void qsock_read ( QSOCK hQsock, int * buff ) ;
+void qsock_read ( QSOCK hQsock, char * buff, int buffSize ) ;
 
-void qsock_write ( QSOCK hQsock, int * buff ) ;
+void qsock_write ( QSOCK hQsock, char * buff, int buffSize ) ;
 
 #endif

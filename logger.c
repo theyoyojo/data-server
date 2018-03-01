@@ -227,7 +227,7 @@ void log_msgf ( const char * fmt , Priority priority , ... )
   sizeFmt = 0 ;
   while ( fmt [ sizeFmt ++ ] != '\0' ) ;
   
-  // TODO what is the best way do determin number of bytes to allocate?
+  // TODO what is the best way do determine number of bytes to allocate?
   // What appears in the following line ( sizeFmt * 2 ) is a temporary fix,
   // though it may prove to be permanently sufficent 
   buffMsg = ( char * ) malloc ( sizeof ( char ) * ( sizeFmt * 2 ) ) ;

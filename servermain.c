@@ -30,25 +30,40 @@ int main ( int argc , char * argv [] )
   log_open ( & log_optSession ) ;
 
   QSOCK hServer_sock = qsock_init_bind ( arbitrary_port ) ;
+
+  if ( hServer_sock -> state == FAILURE )
+  {
+    free ( & hServer_sock ) ;
+  }
+
   QSOCK hClient_sock ;
   qsock_listen ( hServer_sock ) ;
 
   pidMaster = getpid () ;
-  int data ;
+  char dataBuff [ 256 ] ;
+  char nullBuff [ 256 ] ;
+  FILE * binfilep = fopen ( "file.bin" , "r" ) ;
+  fread ( dataBuff , 256 , 1 , binfilep ) ;
+  memset ( nullBuff , 0 , 256 ) ;
+
+  int req ;
 
   while ( sigInterrupt != true )
   {
     hClient_sock = qsock_init_accept ( hServer_sock ) ; 
     if ( hClient_sock == NULL ) continue ;
-    qsock_read ( hClient_sock , & data ) ;
-    data *= 2 ;
-    qsock_write ( hClient_sock , & data ) ;
+
+    qsock_read ( hClient_sock , & req , sizeof ( int ) ) ;
+    printf ( "REQ: %d\n" , req ) ;
+
+    qsock_write ( hClient_sock , req == 4 ? dataBuff : nullBuff , 256 ) ;
     qsock_destroy ( & hClient_sock ) ;
-    sleep ( 5 ) ;
+
     log_msgf ( "Server running on port %d. Press ctl-c to kill.\n" , VERBOSE , arbitrary_port) ;
   }
 
-  qsock_destroy ( & hClient_sock ) ;
+  fclose ( binfilep ) ;
+  qsock_destroy ( & hServer_sock ) ;
   log_close () ;
   printf ( "Exiting normally...\n" ) ;
   

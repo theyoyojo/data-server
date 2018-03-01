@@ -1,6 +1,15 @@
 #include <stdio.h>
 #include "qsock.h"
 
+void putchar_binary ( char c )
+{
+  for ( int i = 0 ; i < 8 ; i ++ )
+  {
+    putchar( ( c | ( 1 << i ) ) > c ? '0' : '1' ) ;
+  } 
+}
+
+
 int main ( int argc , char * argv [] )
 {
   QSOCK c  = NULL ;
@@ -19,12 +28,25 @@ int main ( int argc , char * argv [] )
     c = qsock_init_connect ( port_def , "localhost" ) ;
   }
 
-  int data = 4 ;
+  int req ;
 
-  qsock_write ( c, & data ) ;
-  qsock_read ( c , & data ) ;
+  printf ( "Enter request number:" ) ;
+  scanf ( "%d" , & req ) ;
 
-  printf ( "send 4 got %d\n" , data ) ;
+  char dataBuff [ 256 ] ;
+  memset ( dataBuff , 0 , 256 ) ;
+
+  qsock_write ( c, ( char * ) & req , sizeof ( int ) ) ;
+  qsock_read ( c , dataBuff , 256 ) ;
+
+  printf ( "SERVER RESPOSE FOLLOWS:\n" ) ;
+  int i ;
+  for (i = 0 ; i < 256 ; i ++ )
+  {
+    printf ( "%d: " , i ) ;
+    putchar_binary ( dataBuff [ i ] ) ;
+    printf ( "\n" ) ;
+  }
 
   qsock_destroy ( & c ) ;
 
