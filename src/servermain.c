@@ -9,6 +9,14 @@
 
 typedef enum exit_code { EXIT_NORMAL , EXIT_INIT_ERROR , EXIT_NET_ERROR } Exit_code ;
 
+void putchar_binary ( char c )
+{
+  for ( int i = 0 ; i < 8 ; i ++ )
+  {
+    putchar( ( c | ( 1 << i ) ) > c ? '0' : '1' ) ;
+  } 
+}
+
 int main ( int argc , char * argv [] )
 {
   pid_t pidMaster ;
@@ -33,7 +41,10 @@ int main ( int argc , char * argv [] )
 
   if ( hServer_sock -> state == FAILURE )
   {
-    free ( & hServer_sock ) ;
+    log_msg ( "Unable to initialize server. Killing self...\n" , CRITICAL ) ;
+    qsock_destroy ( & hServer_sock ) ;
+    log_close () ;
+    return EXIT_INIT_ERROR ;
   }
 
   QSOCK hClient_sock ;
@@ -43,7 +54,6 @@ int main ( int argc , char * argv [] )
   char dataBuff [ 256 ] ;
   char nullBuff [ 256 ] ;
   FILE * binfilep = fopen ( "file.bin" , "r" ) ;
-  fread ( dataBuff , 256 , 1 , binfilep ) ;
   memset ( nullBuff , 0 , 256 ) ;
 
   int req ;
@@ -53,9 +63,28 @@ int main ( int argc , char * argv [] )
     hClient_sock = qsock_init_accept ( hServer_sock ) ; 
     if ( hClient_sock == NULL ) continue ;
 
-    qsock_read ( hClient_sock , & req , sizeof ( int ) ) ;
-    printf ( "REQ: %d\n" , req ) ;
+    memset(dataBuff, 0, 256) ;
 
+    qsock_read ( hClient_sock , dataBuff , 256 ) ;
+    //printf ( "REQ: %d\n" , req ) ;
+
+    for ( int i = 0 ; i < 256 ; i ++ )
+    {
+      putchar ( dataBuff [ i ] ) ;
+    }
+    putchar ( '\n' ) ;
+
+    /*
+    printf ( "SENDING RESPONSE:\n" ) ;
+    for ( int i = 0 ; i < 256 ; i ++ )
+    {
+      printf ( "%d: " , i ) ;
+      putchar_binary ( dataBuff [ i ] ) ;
+      printf ( "\n" ) ;
+    }
+    */
+
+    fread ( dataBuff , 256 , 1 , binfilep ) ;
     qsock_write ( hClient_sock , req == 4 ? dataBuff : nullBuff , 256 ) ;
     qsock_destroy ( & hClient_sock ) ;
 

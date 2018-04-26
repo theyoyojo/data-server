@@ -25,7 +25,11 @@ typedef struct qsock
 Qsock * qsock_init_generic ( int port )
 {
   Qsock * pQsock = NULL ;
-  if ( ( pQsock = ( Qsock * ) malloc ( sizeof ( Qsock ) ) ) == NULL ) return NULL ;
+  if ( ( pQsock = ( Qsock * ) malloc ( sizeof ( Qsock ) ) ) == NULL )
+  {
+    return NULL ;
+    log_msg ( "Unable to allocate space for a socket object. Are you out of memory?\n" , CRITICAL ) ;
+  }
 
   if ( ( pQsock -> fd = socket ( AF_INET , SOCK_STREAM , IPPROTO_TCP ) ) < 0 )
   {
@@ -50,7 +54,7 @@ QSOCK qsock_init_bind ( int port )
 {
   Qsock * pQsock = NULL ;
   if ( ( pQsock = qsock_init_generic ( port ) ) == NULL ) return NULL ;
-
+  
   pQsock -> sa_in .sin_addr .s_addr = INADDR_ANY ;
 
   if ( bind ( pQsock -> fd , ( struct sockaddr * ) & pQsock -> sa_in , sizeof ( struct sockaddr_in ) ) < 0 )
@@ -148,7 +152,7 @@ Status qsock_get_state ( QSOCK hQsock )
 void qsock_read ( QSOCK hQsock, char * buff , int buffSize )
 {
   CAST ;
-  if ( read ( pQsock -> fd , buff , sizeof ( int ) ) < 0 )
+  if ( read ( pQsock -> fd , buff , buffSize ) < 0 )
   {
     log_msgf ( "Error reading %d bytes from socket. %s\n" , ERROR , buffSize , strerror ( errno ) ) ;
   }
@@ -158,7 +162,7 @@ void qsock_read ( QSOCK hQsock, char * buff , int buffSize )
 void qsock_write ( QSOCK hQsock, char * buff, int buffSize )
 {
   CAST ;
-  if ( write ( pQsock -> fd , buff , sizeof ( int ) ) < 0 )
+  if ( write ( pQsock -> fd , buff , buffSize )  < 0 )
   {
     log_msgf ( "Error writing %d bytes to socket. %s\n" , ERROR , buffSize , strerror ( errno ) ) ;
   }
